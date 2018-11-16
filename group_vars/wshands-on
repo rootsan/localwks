@@ -1,0 +1,14 @@
+# Variables to host 
+ip4br: 192.168.22.22
+gw4br: 192.168.22.22
+# Total students that attend 
+attendants: 1
+# Info to create logical volumes
+namevg: katie_vms 
+lvsize: 10g
+# Info about cloning process
+vmtemplate: rhel8
+identifier: student
+# Info for configure network access
+nic: eth2
+

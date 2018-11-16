@@ -1,0 +1,4 @@
+# retry get bussines info
+*.retry
+*.swp
+roles/

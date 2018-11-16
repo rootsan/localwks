@@ -1,0 +1,54 @@
+# \o/----- You should fill the info about the environment in vm_guest file -----\o/
+#  |
+# _|_
+---
+- hosts: katie
+  remote_user: root
+  vars_files:
+          - group_vars/wshands-on
+  tasks:
+                  - name: configure bridge in host
+                    block:
+                            - name: Install dependencies
+                              yum:
+                                      name:
+                                              - python-gobject
+                                              - python-dbus
+                                              - libnm-qt-devel
+                                              - libsemanage-python
+                                              - policycoreutils-python
+                                              - nm-connection-editor
+                                              - NetworkManager-glib
+                                              - bridge-utils
+                                      state: latest
+                            - name: Create bridge
+                              nmcli:
+                                      type: bridge
+                                      conn_name: brvm0
+                                      ifname: brvm0
+                                      ip4: 192.168.22.1/24
+                                      gw4: 192.168.22.1
+                                      state: present
+                            - name: Assing NIC to bridge
+                              nmcli:
+                                      type: bridge
+                                      conn_name: brvm0_slave_1
+                                      ifname: eth0
+                                      master: brvm0
+                                      state: present
+                            - name: Cloning VMs
+                              block:
+                                      - lvol:
+                                              vg: "{{namevg}}"
+                                              lv: "{{item}}"
+                                              size: "{{lvsize}}"
+                                              with_sequence: start=0 end={{attendants}} format={{identifier}}%02x
+                                      - shell: |
+                                              virt-clone --connect qemu:///system --original {{vmtemplate}} --name {{item}}  --file /dev/{{namevg}}/{{item}} --check all=off
+                                              with_sequence: start=0 end={{attendants}} format={{identifier}}%02x
+                                      - virt:
+                                              name: "{{item}]"
+                                              command: start
+                                              uri: qemu:///system
+                                              with_sequence: start=0 end={{attendants}} format={{identifier}}%02x
+...
